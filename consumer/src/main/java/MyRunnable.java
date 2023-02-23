@@ -9,20 +9,20 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MyRunnable implements Runnable{
     int numRequest;
-    Connection connection;
+    Channel channel;
     String queueName;
     ConcurrentHashMap<Integer, CopyOnWriteArrayList<Integer>> giving;
     ConcurrentHashMap<Integer, CopyOnWriteArrayList<Integer>> gotten;
     Gson gson = new Gson();
 
     public MyRunnable(int numRequest,
-                      Connection connection,
+                      Channel channel,
                       String queueName,
                       ConcurrentHashMap<Integer, CopyOnWriteArrayList<Integer>> giving,
                       ConcurrentHashMap<Integer, CopyOnWriteArrayList<Integer>> gotten
     ) {
         this.numRequest = numRequest;
-        this.connection = connection;
+        this.channel = channel;
         this.queueName = queueName;
         this.giving = giving;
         this.gotten = gotten;
@@ -32,9 +32,6 @@ public class MyRunnable implements Runnable{
     public void run() {
         for (int iRequest = 0; iRequest < numRequest; iRequest++) {
             try {
-                Channel channel = connection.createChannel();
-                channel.queueDeclare(queueName, false, false, false, null);
-
                 // Consume message
                 DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                     String message = new String(delivery.getBody(), StandardCharsets.UTF_8);

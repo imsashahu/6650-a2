@@ -16,26 +16,34 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "swipe", value = "/swipe")
 public class Swipe extends HttpServlet {
-    private static final String QUEUE_NAME = "yh-queue";
-    private static final String HOST = "52.24.24.233";
+    private static final String QUEUE_NAME = "hello-queue";
+    private static final String HOST = "52.12.73.41";
     private static final String USER = "admin";
     private static final String PWD = "1234";
 
-    private Connection connection = null;
+    private static final Connection connection;
+    private static Channel channel;
 
-    @Override
-    public void init() throws ServletException {
-        super.init();
-
+    static {
         // Connect to RabbitMQ
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(HOST);
         factory.setUsername(USER);
         factory.setPassword(PWD);
-
         try {
             connection = factory.newConnection();
         } catch (IOException | TimeoutException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+
+        try {
+            channel = connection.createChannel();
+        } catch (IOException e) {
             e.getStackTrace();
         }
     }
@@ -102,17 +110,10 @@ public class Swipe extends HttpServlet {
                     payload.addProperty("swipee", requestFields.getSwiper());
                     payload.addProperty("comment", requestFields.getComment());
 
-                    // Connect to RabbitMQ
-                    ConnectionFactory factory = new ConnectionFactory();
-                    factory.setHost(HOST);
-                    factory.setUsername(USER);
-                    factory.setPassword(PWD);
-
                     if (connection == null) {
                         response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
                         response.getWriter().write("RabbitMQ not work.");
                     } else {
-                        Channel channel = connection.createChannel();
                         channel.queueDeclare(QUEUE_NAME, false, false, false, null);
                         byte[] message = payload.toString().getBytes(StandardCharsets.UTF_8);
                         channel.basicPublish("", QUEUE_NAME, null, message);

@@ -16,11 +16,10 @@ public class MyRunnable implements Runnable {
 
     public void run() {
         ApiClient apiClient = new ApiClient();
-        apiClient.setBasePath("http://35.87.78.136:8080/swipe_war");
-//        apiClient.setConnectTimeout(500000);
-//        apiClient.setReadTimeout(500000);
-        // apiClient.setBasePath("http://35.87.36.221:8080"); // Bonus: spring boot deployment
-        // apiClient.setBasePath("http://localhost:8080/swipe_war_exploded"); // Local test
+        apiClient.setBasePath("http://35.91.152.50:8080/swipe_war");
+        apiClient.setConnectTimeout(500000);
+        apiClient.setReadTimeout(500000);
+//        apiClient.setBasePath("http://localhost:8080/swipe_war_exploded"); // Local test
         SwipeApi apiInstance = new SwipeApi(apiClient);
         SwipeDetails body = new SwipeDetails();
         RandomGenerator newPostRequest = new RandomGenerator();

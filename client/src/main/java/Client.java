@@ -5,8 +5,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.Random;
 
 public class Client {
-    private static final Integer NUM_THREAD = 183;
-    private static final Integer NUM_MESSAGE = 10000;
+    private static final Integer NUM_THREAD = 5;
+    private static final Integer NUM_MESSAGE = 100000;
 
     public static void main(String[] args) throws InterruptedException {
         Timestamp startTime = new Timestamp(System.currentTimeMillis());
