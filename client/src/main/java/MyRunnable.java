@@ -6,6 +6,8 @@ import io.swagger.client.model.SwipeDetails;
 import java.util.concurrent.CountDownLatch;
 
 public class MyRunnable implements Runnable {
+    static final String PATH = "http://54.191.45.84:8080/swipe_war";
+    // http://localhost:8080/swipe_war_exploded
     int numRequest;
     CountDownLatch countDown;
 
@@ -16,10 +18,9 @@ public class MyRunnable implements Runnable {
 
     public void run() {
         ApiClient apiClient = new ApiClient();
-        apiClient.setBasePath("http://35.91.152.50:8080/swipe_war");
+        apiClient.setBasePath(PATH);
         apiClient.setConnectTimeout(500000);
         apiClient.setReadTimeout(500000);
-//        apiClient.setBasePath("http://localhost:8080/swipe_war_exploded"); // Local test
         SwipeApi apiInstance = new SwipeApi(apiClient);
         SwipeDetails body = new SwipeDetails();
         RandomGenerator newPostRequest = new RandomGenerator();

@@ -8,6 +8,8 @@ import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeoutException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,15 +19,19 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "swipe", value = "/swipe")
 public class Swipe extends HttpServlet {
     private static final String QUEUE_NAME = "hello-queue";
-    private static final String HOST = "52.12.73.41";
+    private static final String HOST = "172.31.16.194";
     private static final String USER = "admin";
     private static final String PWD = "1234";
 
-    private static final Connection connection;
-    private static Channel channel;
+    private static Connection connection;
+    private Channel channel;
 
-    static {
-        // Connect to RabbitMQ
+    private static BlockingDeque<Channel> channelPool;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(HOST);
         factory.setUsername(USER);
@@ -35,11 +41,6 @@ public class Swipe extends HttpServlet {
         } catch (IOException | TimeoutException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void init() throws ServletException {
-        super.init();
 
         try {
             channel = connection.createChannel();

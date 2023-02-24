@@ -8,21 +8,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MyRunnable implements Runnable{
-    int numRequest;
-    Channel channel;
+    Connection connection;
     String queueName;
     ConcurrentHashMap<Integer, CopyOnWriteArrayList<Integer>> giving;
     ConcurrentHashMap<Integer, CopyOnWriteArrayList<Integer>> gotten;
     Gson gson = new Gson();
 
-    public MyRunnable(int numRequest,
-                      Channel channel,
+    public MyRunnable(Connection connection,
                       String queueName,
                       ConcurrentHashMap<Integer, CopyOnWriteArrayList<Integer>> giving,
                       ConcurrentHashMap<Integer, CopyOnWriteArrayList<Integer>> gotten
     ) {
-        this.numRequest = numRequest;
-        this.channel = channel;
+        this.connection = connection;
         this.queueName = queueName;
         this.giving = giving;
         this.gotten = gotten;
@@ -30,26 +27,26 @@ public class MyRunnable implements Runnable{
 
     @Override
     public void run() {
-        for (int iRequest = 0; iRequest < numRequest; iRequest++) {
-            try {
-                // Consume message
-                DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-                    String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-                    SwipeDetails swipe = gson.fromJson(message, SwipeDetails.class);
-                    int swiper = swipe.getSwiper();
-                    int swipee = swipe.getSwipee();
-                    String comment = swipe.getComment();
+        try {
+            Channel channel = connection.createChannel();
+            channel.queueDeclare(queueName, false, false, false, null);
+            // Consume message
+            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+                String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+                SwipeDetails swipe = gson.fromJson(message, SwipeDetails.class);
+                int swiper = swipe.getSwiper();
+                int swipee = swipe.getSwipee();
+                // String comment = swipe.getComment();
 
-                    giving.computeIfAbsent(swiper, k -> new CopyOnWriteArrayList<>()).add(swipee);
-                    gotten.computeIfAbsent(swipee, k -> new CopyOnWriteArrayList<>()).add(swiper);
-                    System.out.println(" [x] Received from " + swiper + " to " + swipee);
-                };
+                giving.computeIfAbsent(swiper, k -> new CopyOnWriteArrayList<>()).add(swipee);
+                gotten.computeIfAbsent(swipee, k -> new CopyOnWriteArrayList<>()).add(swiper);
+                System.out.println(" [x] Received from " + swiper + " to " + swipee);
+            };
 
-                // Mark as delivered
-                channel.basicConsume(queueName, true, deliverCallback, consumerTag -> { });
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            // Mark as delivered
+            channel.basicConsume(queueName, true, deliverCallback, consumerTag -> { });
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
     }
