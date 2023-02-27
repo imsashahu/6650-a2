@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Main-Class: RabbitMQ
+Class-Path: slf4j-api-1.7.36.jar jackson-core-2.14.1.jar jackson-annotat
+ ions-2.14.1.jar amqp-client-5.16.0.jar jackson-databind-2.14.1.jar
+

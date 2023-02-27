@@ -1,5 +1,6 @@
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -18,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "swipe", value = "/swipe")
 public class Swipe extends HttpServlet {
-    private static final String QUEUE_NAME = "hello-queue";
     private static final String HOST = "172.31.16.194";
     private static final String USER = "admin";
     private static final String PWD = "1234";
@@ -110,14 +110,24 @@ public class Swipe extends HttpServlet {
                     payload.addProperty("swiper", requestFields.getSwipee());
                     payload.addProperty("swipee", requestFields.getSwiper());
                     payload.addProperty("comment", requestFields.getComment());
+                    payload.addProperty("direction", urlParts[1]);
 
                     if (connection == null) {
                         response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
                         response.getWriter().write("RabbitMQ not work.");
                     } else {
-                        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+                        channel.exchangeDeclare("my-fanout-exchange", BuiltinExchangeType.FANOUT);
+
+                        String queue1Name = "my-queue-1";
+                        channel.queueDeclare(queue1Name, false, false, false, null);
+                        channel.queueBind(queue1Name, "my-fanout-exchange", "");
+
+                        String queue2Name = "my-queue-2";
+                        channel.queueDeclare(queue2Name, false, false, false, null);
+                        channel.queueBind(queue2Name, "my-fanout-exchange", "");
+
                         byte[] message = payload.toString().getBytes(StandardCharsets.UTF_8);
-                        channel.basicPublish("", QUEUE_NAME, null, message);
+                        channel.basicPublish("my-fanout-exchange", "", null, message);
 
                         response.setStatus(HttpServletResponse.SC_CREATED);
                         response.getWriter().write("Post works: " + urlPath);

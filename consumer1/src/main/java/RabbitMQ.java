@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Random;
 
 public class RabbitMQ {
-    private final static String QUEUE_NAME = "hello-queue";
-    private static final String HOST = "54.188.25.19";
+    private final static String QUEUE_NAME = "my-queue-1";
+    private static final String HOST = "172.31.16.194";
     private static final String USER = "admin";
     private static final String PWD = "1234";
     private static final Integer THREAD_SIZE = 50;
-    private static ConcurrentHashMap<Integer, CopyOnWriteArrayList<Integer>> giving = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<Integer, CopyOnWriteArrayList<Integer>> gotten = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<Integer, CopyOnWriteArrayList<Integer>> givingNumbers = new ConcurrentHashMap<>();
+    // For the number of likes and dislikes this user has swiped
 
     public static void main(String[] argv) throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
@@ -39,8 +39,8 @@ public class RabbitMQ {
             Runnable thread =  new MyRunnable(
                     connection,
                     QUEUE_NAME,
-                    giving,
-                    gotten);
+                    givingNumbers,
+                    i);
             new Thread(thread).start();
         }
     }

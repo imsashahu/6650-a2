@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Main-Class: RabbitMQ
+Class-Path: jackson-core-2.14.1.jar jackson-annotations-2.14.1.jar jacks
+ on-databind-2.14.1.jar
+

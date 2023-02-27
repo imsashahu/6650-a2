@@ -6,7 +6,8 @@ import io.swagger.client.model.SwipeDetails;
 import java.util.concurrent.CountDownLatch;
 
 public class MyRunnable implements Runnable {
-    static final String PATH = "http://54.191.45.84:8080/swipe_war";
+    static final String PATH = "http://52.35.131.11:8080/swipe_war";
+    // http://server-load-balancer-1932552343.us-west-2.elb.amazonaws.com/swipe_war // load balancer
     // http://localhost:8080/swipe_war_exploded
     int numRequest;
     CountDownLatch countDown;
